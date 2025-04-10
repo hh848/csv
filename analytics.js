@@ -1,23 +1,41 @@
-document.addEventListener('DOMContentLoaded', function() {
-  const uvElement = document.getElementById('uv-counter');
-  const pvElement = document.getElementById('pv-counter');
-  
-  // 从本地存储读取缓存
-  const lastUV = localStorage.getItem('lastUV') || '0';
-  const lastPV = localStorage.getItem('lastPV') || '0';
-  
-  uvElement.textContent = lastUV;
-  pvElement.textContent = lastPV;
+// 文件：analytics.js（完整修复版）
+// 使用 MutationObserver 确保元素插入后再执行统计
+const observer = new MutationObserver((mutations) => {
+  if (document.getElementById('uv-counter') {
+    observer.disconnect();
+    executeAnalytics();
+  }
+});
 
-  // 继续尝试请求新数据
-  fetch('https://analytics.070200.xyz/api/visit', {/* 原有参数 */})
+// 监听 body 变化
+observer.observe(document.body, {
+  childList: true,
+  subtree: true
+});
+
+function executeAnalytics() {
+  const apiUrl = 'https://analytics.070200.xyz/api/visit';
+  
+  fetch(apiUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      url: window.location.pathname,
+      hostname: location.hostname,
+      referrer: document.referrer,
+      pv: true,
+      uv: true
+    })
+  })
   .then(res => res.json())
   .then(data => {
     if(data?.data) {
-      localStorage.setItem('lastUV', data.data.uv);
-      localStorage.setItem('lastPV', data.data.pv);
-      // 更新显示...
+      document.getElementById('uv-counter').textContent = data.data.uv;
+      document.getElementById('pv-counter').textContent = data.data.pv;
     }
   })
-  .catch(() => {/* 静默失败 */});
-});
+  .catch(console.debug);
+}
+
+// 降级方案：DOMContentLoaded 后10秒强制执行
+setTimeout(executeAnalytics, 10000);
