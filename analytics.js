@@ -1,7 +1,7 @@
 // 文件：analytics.js（上传至你的存储服务）
 document.addEventListener('DOMContentLoaded', function() {
   // 仅执行数据请求，不操作DOM
-  fetch('https://analytics.my.xyz/api/visit', {
+  fetch('https://analytics.070200.xyz/api/visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
