@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     if(data?.data) {
-      uvElement.textContent = data.data.uv ?? 'N/A';
-      pvElement.textContent = data.data.pv ?? 'N/A';
+      uvElement.textContent = data.uv || data.result.uv || data.data.stats.uv ?? 'N/A';
+      pvElement.textContent = data.pv || data.result.pv || data.data.stats.pv ?? 'N/A';
     }
   })
   .catch(error => {
