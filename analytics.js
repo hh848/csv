@@ -1,40 +1,44 @@
+// analytics.js - 增强容错版
 document.addEventListener('DOMContentLoaded', function() {
-  // 调试标记1：检查脚本是否加载
-  console.log('[Analytics] 脚本已加载');
-  
+  const safeUpdate = (element, value) => {
+    if(element && typeof value !== 'undefined') {
+      element.textContent = value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+  };
+
+  // 本地缓存降级方案
+  const loadFromCache = () => {
+    safeUpdate(document.getElementById('uv-counter'), localStorage.getItem('lastUV'));
+    safeUpdate(document.getElementById('pv-counter'), localStorage.getItem('lastPV'));
+  };
+
+  // 优先显示缓存
+  loadFromCache();
+
+  // 发起新请求
   fetch('https://analytics.070200.xyz/api/visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ /* 参数保持不变 */ })
+    body: JSON.stringify({
+      url: window.location.pathname,
+      hostname: location.hostname,
+      referrer: document.referrer,
+      pv: true,
+      uv: true
+    })
   })
   .then(res => {
-    // 调试标记2：检查网络响应状态
-    console.log('[Analytics] 响应状态:', res.status);
-    if (!res.ok) throw new Error(`HTTP错误 ${res.status}`);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
     return res.json();
   })
   .then(data => {
-    // 调试标记3：打印完整响应数据
-    console.log('[Analytics] 完整响应:', data);
-    
-    const uvElement = document.getElementById('uv-counter');
-    const pvElement = document.getElementById('pv-counter');
-    
-    // 调试标记4：检查元素是否存在
-    if (!uvElement || !pvElement) {
-      throw new Error('未找到统计元素');
-    }
-
     if(data?.data) {
-      uvElement.textContent = data.uv || data.result.uv || data.data.stats.uv ?? 'N/A';
-      pvElement.textContent = data.pv || data.result.pv || data.data.stats.pv ?? 'N/A';
+      localStorage.setItem('lastUV', data.data.uv);
+      localStorage.setItem('lastPV', data.data.pv);
+      loadFromCache();
     }
   })
   .catch(error => {
-    // 显示详细错误信息
-    console.error('[Analytics] 错误详情:', error);
-    document.querySelectorAll('#uv-counter, #pv-counter').forEach(el => {
-      el.textContent = '数据异常';
-    });
+    console.debug('统计更新失败，继续使用缓存');
   });
 });
