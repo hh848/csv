@@ -36,6 +36,6 @@ function executeAnalytics() {
   })
   .catch(console.debug);
 }
-
+console.log('元素状态：', document.getElementById('uv-counter') ? '存在' : '缺失');
 // 降级方案：DOMContentLoaded 后10秒强制执行
 setTimeout(executeAnalytics, 10000);
