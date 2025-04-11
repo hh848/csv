@@ -1,35 +1,49 @@
-// 注意移除IIFE包裹，直接暴露初始化逻辑
-const initAnalytics = () => {
-  const apiUrl = 'https://analytics.070200.xyz/api/visit';
-  const requestData = { 
-    url: window.location.pathname,
-    hostname: window.location.hostname,
-    referrer: document.referrer,
-    pv: true,
-    uv: true
+// 添加DOM存在性检查和重试机制
+const initAnalytics = (retryCount = 0) => {
+  // 防御性检查
+  const isElementReady = () => {
+    return document.getElementById('uv-counter') && document.getElementById('pv-counter');
   };
-Access-Control-Allow-Origin: *
 
-  fetch(apiUrl, {
+  // 如果元素未加载且重试次数未超过3次
+  if (!isElementReady() && retryCount < 3) {
+    setTimeout(() => initAnalytics(retryCount + 1), 500 * (retryCount + 1));
+    return;
+  }
+
+  // 正式请求
+  fetch('https://analytics.070200.xyz/api/visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(requestData)
+    body: JSON.stringify({
+      url: window.location.pathname,
+      hostname: window.location.hostname,
+      referrer: document.referrer,
+      pv: true,
+      uv: true
+    })
   })
-  .then(response => response.json())
+  .then(res => {
+    if (!res.ok) throw new Error(`HTTP错误 ${res.status}`);
+    return res.json();
+  })
   .then(data => {
-    if(data.data) {
-      const uvElement = document.getElementById('uv-counter');
-      const pvElement = document.getElementById('pv-counter');
-      uvElement && (uvElement.textContent = data.data.uv);
-      pvElement && (pvElement.textContent = data.data.pv);
+    console.log('统计响应:', data);
+    if (data?.data) {
+      document.getElementById('uv-counter').textContent = data.data.uv || 'N/A';
+      document.getElementById('pv-counter').textContent = data.data.pv || 'N/A';
     }
   })
-  .catch(e => console.log('统计加载延迟'));
-}
+  .catch(err => {
+    console.warn('统计加载失败:', err);
+    document.getElementById('uv-counter').textContent = '-';
+    document.getElementById('pv-counter').textContent = '-';
+  });
+};
 
-// 更健壮的加载事件处理
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initAnalytics);
-} else {
+// 启动初始化
+if (document.readyState === 'complete') {
   initAnalytics();
+} else {
+  document.addEventListener('DOMContentLoaded', () => initAnalytics());
 }
