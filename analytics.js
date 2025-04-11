@@ -1,41 +1,35 @@
-// 文件：analytics.js（完整修复版）
-// 使用 MutationObserver 确保元素插入后再执行统计
-const observer = new MutationObserver((mutations) => {
-  if (document.getElementById('uv-counter') {
-    observer.disconnect();
-    executeAnalytics();
-  }
-});
-
-// 监听 body 变化
-observer.observe(document.body, {
-  childList: true,
-  subtree: true
-});
-
-function executeAnalytics() {
+// 注意移除IIFE包裹，直接暴露初始化逻辑
+const initAnalytics = () => {
   const apiUrl = 'https://analytics.070200.xyz/api/visit';
-  
+  const requestData = { 
+    url: window.location.pathname,
+    hostname: window.location.hostname,
+    referrer: document.referrer,
+    pv: true,
+    uv: true
+  };
+Access-Control-Allow-Origin: *
+
   fetch(apiUrl, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      url: window.location.pathname,
-      hostname: location.hostname,
-      referrer: document.referrer,
-      pv: true,
-      uv: true
-    })
+    body: JSON.stringify(requestData)
   })
-  .then(res => res.json())
+  .then(response => response.json())
   .then(data => {
-    if(data?.data) {
-      document.getElementById('uv-counter').textContent = data.data.uv;
-      document.getElementById('pv-counter').textContent = data.data.pv;
+    if(data.data) {
+      const uvElement = document.getElementById('uv-counter');
+      const pvElement = document.getElementById('pv-counter');
+      uvElement && (uvElement.textContent = data.data.uv);
+      pvElement && (pvElement.textContent = data.data.pv);
     }
   })
-  .catch(console.debug);
+  .catch(e => console.log('统计加载延迟'));
 }
-console.log('元素状态：', document.getElementById('uv-counter') ? '存在' : '缺失');
-// 降级方案：DOMContentLoaded 后10秒强制执行
-setTimeout(executeAnalytics, 10000);
+
+// 更健壮的加载事件处理
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAnalytics);
+} else {
+  initAnalytics();
+}
