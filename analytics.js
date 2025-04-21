@@ -12,7 +12,7 @@ const initAnalytics = (retryCount = 0) => {
   }
 
   // 正式请求
-  fetch('https://analytics.070200.xyz/api/visit', {
+  fetch('https://analytics.53953.eu.org/api/visit', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
