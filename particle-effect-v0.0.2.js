@@ -1,14 +1,22 @@
-window.addEventListener('DOMContentLoaded', () => {
-  // 动态插入 CSS
-  const style = document.createElement('style');
-  style.textContent = `
-    @media (max-width: 768px) {
-      #particle-canvas { display: none; }
-    }
-  `;
-  document.head.appendChild(style);
+// 动态创建样式
+const style = document.createElement('style');
+style.textContent = `
+#particle-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 999999;
+  pointer-events: none;
+}
+  @media (max-width: 768px) {
+  #particle-canvas { display: none; }
+}`;
+document.head.appendChild(style);
 
-  // 创建画布...（原脚本内容，需调整 Particle 类定义）
+// 粒子系统代码
+(function() {
+  // 此处包含上述完整的JavaScript代码
+  // 包括Particle类、事件监听、动画逻辑等
  window.addEventListener('DOMContentLoaded',  () => {
   // 创建画布元素 
   const canvas = document.createElement('canvas'); 
@@ -21,24 +29,20 @@ window.addEventListener('DOMContentLoaded', () => {
   canvas.height  = window.innerHeight; 
   
   // 粒子系统实现
-
   class Particle {
     constructor(x, y) {
       this.x = x;
       this.y = y;
-      this.size = Math.random() * 20 + 8;
-      this.speedX = Math.random() * 2 - 1;
-      this.speedY = Math.random() * 2 - 1;
-      this.color = `hsla(${Math.random() * 360}, 100%, 50%, ${this.size/5})`;
-      this.gravity = 0.1;
+      this.size  = Math.random()  * 20 + 8
+      this.speedX  = Math.random()  * 2 - 1;
+      this.speedY  = Math.random()  * 2 - 1;
+      this.color  = `hsl(${Math.random()  * 360}, 100%, 50%)`;
     }
     update() {
-      this.speedY += this.gravity;
-      this.x += this.speedX;
-      this.y += this.speedY;
-      if (this.size > 0.2) this.size -= 0.1;
+      this.x += this.speedX; 
+      this.y += this.speedY; 
+      if (this.size  > 0.2) this.size  -= 0.1;
     }
-    // ...保持其他方法不变
     draw() {
       ctx.fillStyle  = this.color; 
       ctx.beginPath(); 
@@ -46,7 +50,7 @@ window.addEventListener('DOMContentLoaded', () => {
       ctx.fill(); 
     }
   }
-  // ...剩余原始脚本代码
+ 
   // 粒子池 
   let particles = [];
   
@@ -68,11 +72,11 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if(particles.length  > 500) particles.splice(0,  200); // 性能保护 
   });
-
+  
   // 启动动画 
   animate();
 });
-  
+
 // 窗口尺寸变化监听 
 window.addEventListener('resize',  () => {
   canvas.width  = window.innerWidth; 
@@ -84,8 +88,16 @@ window.addEventListener('alist:route-update',  () => {
   particles = []; // 清空旧粒子 
 });
 
+// 添加重力效果 
+const gravity = 0.1;
+class Particle {
+  //...
+  update() {
+    this.speedY  += gravity; // 添加重力加速度 
+    //...
+  }
+}
  
-
-
-
-
+// 添加渐隐效果 
+ctx.fillStyle  = `hsla(${Math.random()*360},  100%, 50%, ${this.size/5})`;   
+})();
