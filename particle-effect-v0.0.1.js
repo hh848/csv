@@ -68,6 +68,10 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     if(particles.length  > 500) particles.splice(0,  200); // 性能保护 
   });
+
+  // 启动动画 
+  animate();
+});
   
 // 窗口尺寸变化监听 
 window.addEventListener('resize',  () => {
@@ -79,11 +83,6 @@ window.addEventListener('resize',  () => {
 window.addEventListener('alist:route-update',  () => {
   particles = []; // 清空旧粒子 
 });
-
-  // 启动动画 
-  animate();
-});
-
 
  
 
