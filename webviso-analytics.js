@@ -19,7 +19,7 @@ class WebvisoStats extends HTMLElement {
   }
 
   async _loadData() {
-    const apiUrl = this.getAttribute('api-url') || 'https://analytics.xbxin.com/api/visit';
+    const apiUrl = this.getAttribute('api-url') || 'https://analytics.53953.eu.org/api/visit';
     
     try {
       const res = await fetch(apiUrl, {
