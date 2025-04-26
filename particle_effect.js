@@ -3,9 +3,9 @@
 
   // ================ 配置系统 ================
   const defaultConfig = {
-    gravity: 0.1,
-    particleSize: [5, 15],
-    colors: 'random',
+    gravity: 0.03,
+    particleSize: [8, 25],
+    colors: 'random',            // colors: ['#FF6B6B', '#4ECDC4', '#45B7D1'],
     maxParticles: 500,
     spawnCount: 20,
     fadeSpeed: 0.1,
