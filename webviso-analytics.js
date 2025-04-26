@@ -1,58 +1,74 @@
-// 采用 UMD 格式兼容多种引入方式
-(function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' 
-      ? factory(require('vue')) 
-      : typeof define === 'function' && define.amd 
-        ? define(['vue'], factory) 
-        : (global = global || self, factory(global.Vue));
-  })(this, function(Vue) {
-    'use strict';
-  
-    const STATS_API = 'https://analytics.53953.eu.org/api/visit';
-    const VERSION = '1.1.0';
-  
-    // 响应式状态仓库
-    const store = Vue.reactive({ uv: '-', pv: '-' });
-  
-    // 核心统计方法
-    const fetchStats = async () => {
-      try {
-        const res = await fetch(STATS_API, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            url: location.pathname,
-            hostname: location.hostname,
-            referrer: document.referrer,
-            pv: true,
-            uv: true
-          })
-        });
-        
-        if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
-        const { data } = await res.json();
-        
-        Object.assign(store, data);
-      } catch (err) {
-        console.error(`[Webviso@${VERSION}] 统计异常:`, err);
-      }
-    };
-  
-    // Vue 插件安装器
-    const install = (app) => {
-      // 提供全局访问接口
-      app.provide('webviso', store);
-      
-      // 自动挂载逻辑
-      app.mixin({
-        mounted() {
-          if (this.$options.needWebviso !== false) {
-            fetchStats();
-          }
-        }
+class WebvisoStats extends HTMLElement {
+  static get observedAttributes() { return ['api-url']; }
+
+  constructor() {
+    super();
+    this._shadow = this.attachShadow({ mode: 'open' });
+    this._data = { uv: 0, pv: 0 };
+  }
+
+  connectedCallback() {
+    this._render();
+    this._loadData();
+  }
+
+  attributeChangedCallback(name, oldVal, newVal) {
+    if (name === 'api-url' && oldVal !== newVal) {
+      this._loadData();
+    }
+  }
+
+  async _loadData() {
+    const apiUrl = this.getAttribute('api-url') || 'https://analytics.xbxin.com/api/visit';
+    
+    try {
+      const res = await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          url: location.pathname,
+          hostname: location.hostname,
+          referrer: document.referrer,
+          pv: true,
+          uv: true
+        })
       });
-    };
-  
-    // 暴露公共接口
-    return { install, store, fetchStats, VERSION };
-  });
+
+      if (!res.ok) throw new Error(res.statusText);
+      const { data } = await res.json();
+      
+      this._data = data;
+      this._updateCounters();
+    } catch (err) {
+      console.error('[Webviso] 统计加载失败:', err);
+      this._showError();
+    }
+  }
+
+  _render() {
+    this._shadow.innerHTML = `
+      <style>
+        :host { display: block; margin: 1rem 0; }
+        .counter { margin: 0.5em 0; color: #666; }
+        [data-counter] { color: #1890ff; font-weight: bold; }
+        .error { color: #ff4d4f; }
+      </style>
+      <slot></slot>
+    `;
+  }
+
+  _updateCounters() {
+    this.querySelectorAll('[data-counter]').forEach(el => {
+      el.textContent = this._data[el.dataset.counter] || '0';
+    });
+  }
+
+  _showError() {
+    const errorEl = document.createElement('div');
+    errorEl.className = 'error';
+    errorEl.textContent = '统计信息暂不可用';
+    this._shadow.appendChild(errorEl);
+  }
+}
+
+customElements.define('webviso-stats', WebvisoStats);
