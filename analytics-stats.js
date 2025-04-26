@@ -1,7 +1,7 @@
 // analytics.v1.0.0.js
 (() => {
   const CONFIG = {
-    apiUrl: document.currentScript?.dataset?.apiUrl || 'https://analytics.53953.org/api/visit',
+    apiUrl: document.currentScript?.dataset?.apiUrl || 'https://analytics.53953.eu.org/api/visit',
     counters: JSON.parse(document.currentScript?.dataset?.counters || '{"uv":"uv-counter","pv":"pv-counter"}')
   };
 
