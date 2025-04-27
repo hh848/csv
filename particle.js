@@ -115,20 +115,12 @@
     window.addEventListener('alist:route-update', () => particles = []); */
 
 
-// 添加防抖处理
-let clearTimeoutId;
-const clearOnRouteChange = () => {
-  clearTimeout(clearTimeoutId);
-  clearTimeoutId = setTimeout(() => {
+
+  // 路由变化处理器
+  const clearOnRouteChange = () => {
     particles = [];
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-  }, 100); // 100ms内多次路由变化只执行一次
-
-  // particles = [];
-  // canvas.width = canvas.width; // 强制清空画布
-
-};
-
+    canvas.width = canvas.width; // 强制清空画布
+  };
 
 
 
