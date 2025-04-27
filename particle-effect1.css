@@ -1,0 +1,18 @@
+window.addEventListener('DOMContentLoaded', () => {
+  // 动态插入 CSS
+  const style = document.createElement('style');
+  style.textContent = `
+    /* 特效画布定位 */
+#particle-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 999999;
+    pointer-events: none;
+  }
+    
+    @media (max-width: 768px) {
+      #particle-canvas { display: none; }
+    }
+  `;
+  document.head.appendChild(style);
