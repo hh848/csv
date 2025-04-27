@@ -1,8 +1,7 @@
-(function() {
   'use strict';
-
   
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', function() {
+  
   // 动态插入 CSS
   const style = document.createElement('style');
   style.textContent = `
@@ -151,4 +150,4 @@ const clearOnRouteChange = () => {
 
 });
 
-})();
+
