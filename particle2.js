@@ -110,19 +110,25 @@
     handleResize();
 
     // 事件监听
-    /*document.addEventListener('click', handleClick);
+    document.addEventListener('click', handleClick);
     window.addEventListener('resize', handleResize);
-    window.addEventListener('alist:route-update', () => particles = []); */
+    window.addEventListener('alist:route-update', () => particles = []); 
 
 
 
-  // 路由变化处理器
-  const clearOnRouteChange = () => {
+// 添加防抖处理
+let clearTimeoutId;
+const clearOnRouteChange = () => {
+  clearTimeout(clearTimeoutId);
+  clearTimeoutId = setTimeout(() => {
     particles = [];
-    canvas.width = canvas.width; // 强制清空画布
-  };
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }, 100); // 100ms内多次路由变化只执行一次
 
+  // particles = [];
+  // canvas.width = canvas.width; // 强制清空画布
 
+};
 
   // 监听所有路由变化方式
   const routingEvents = [
