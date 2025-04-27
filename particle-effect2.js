@@ -1,3 +1,7 @@
+(function() {
+  'use strict';
+
+  
 window.addEventListener('DOMContentLoaded', () => {
   // 动态插入 CSS
   const style = document.createElement('style');
@@ -146,3 +150,5 @@ const clearOnRouteChange = () => {
   animate();
 
 });
+
+})();
