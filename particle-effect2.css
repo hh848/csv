@@ -1,4 +1,3 @@
-window.addEventListener('DOMContentLoaded', () => {
   // 动态插入 CSS
   const style = document.createElement('style');
   style.textContent = `
